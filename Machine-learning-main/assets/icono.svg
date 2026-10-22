@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Genesis">
+  <rect width="48" height="48" fill="#0B3C49"/>
+  <polyline points="9,36 19,27 27,31 38,14" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="miter" stroke-linecap="square"/>
+  <rect x="33" y="9" width="10" height="10" fill="#6FBF9B"/>
+</svg>

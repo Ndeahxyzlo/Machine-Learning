@@ -1,0 +1,169 @@
+import json
+import os
+import sqlite3
+import subprocess
+import sys
+from contextlib import closing
+from datetime import datetime
+from pathlib import Path
+
+import joblib
+import pandas as pd
+
+BASE = Path(__file__).parent
+RUTA_DATOS = BASE / "data" / "clientes.csv"
+RUTA_MODELO = BASE / "ml" / "modelo.pkl"
+RUTA_METRICAS = BASE / "ml" / "metricas.json"
+RUTA_DB = Path(os.environ.get("GENESIS_DB") or BASE / "database.db")
+
+UMBRAL_MEDIO = 0.40
+UMBRAL_ALTO = 0.70
+
+COLORES = {"Bajo": "#1F6E43", "Medio": "#A85F00", "Alto": "#B4161B"}
+
+RECOMENDACION = {
+    "Bajo": "El cliente presenta señales estables. Mantenga el seguimiento habitual.",
+    "Medio": "Se recomienda revisar su experiencia y mantener contacto preventivo.",
+    "Alto": "Se recomienda priorizar una acción de retención o contacto personalizado.",
+}
+
+ETIQUETAS = {
+    "edad": "Edad",
+    "ingresos": "Ingresos",
+    "frecuencia_compra": "Frecuencia de compra",
+    "cantidad_productos": "Productos adquiridos",
+    "tiempo_cliente": "Tiempo como cliente",
+    "satisfaccion": "Satisfacción",
+}
+
+
+def cargar_modelo() -> dict:
+    try:
+        return joblib.load(RUTA_MODELO)
+    except Exception:
+        subprocess.run([sys.executable, str(BASE / "entrenar.py")], cwd=BASE, check=True, capture_output=True)
+        return joblib.load(RUTA_MODELO)
+
+
+def cargar_metricas() -> dict:
+    with open(RUTA_METRICAS, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def cargar_datos() -> pd.DataFrame:
+    return pd.read_csv(RUTA_DATOS)
+
+
+def nivel_riesgo(probabilidad: float) -> str:
+    if probabilidad >= UMBRAL_ALTO:
+        return "Alto"
+    if probabilidad >= UMBRAL_MEDIO:
+        return "Medio"
+    return "Bajo"
+
+
+def predecir(modelo: dict, datos: dict) -> float:
+    X = pd.DataFrame([datos])[modelo["features"]]
+    return float(modelo["pipeline"].predict_proba(X)[0, 1])
+
+
+def puntuar_dataset(modelo: dict, df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    out["probabilidad"] = modelo["pipeline"].predict_proba(out[modelo["features"]])[:, 1]
+    out["riesgo"] = out["probabilidad"].map(nivel_riesgo)
+    return out
+
+
+def efecto_variables(modelo: dict, datos: dict, referencia: pd.DataFrame) -> dict:
+    base = predecir(modelo, datos)
+    medianas = referencia[modelo["features"]].median()
+    efectos = {}
+    for col in modelo["features"]:
+        alterado = dict(datos)
+        alterado[col] = float(medianas[col])
+        efectos[col] = base - predecir(modelo, alterado)
+    return efectos
+
+
+def formato_cop(valor) -> str:
+    return "$" + f"{int(valor):,}".replace(",", ".")
+
+
+def porcentaje(valor: float, decimales: int = 0) -> str:
+    return f"{valor * 100:.{decimales}f}".replace(".", ",") + " %"
+
+
+def decimal(valor: float, decimales: int = 2) -> str:
+    return f"{valor:.{decimales}f}".replace(".", ",")
+
+
+def _conexion() -> sqlite3.Connection:
+    return sqlite3.connect(RUTA_DB)
+
+
+def init_db() -> None:
+    with closing(_conexion()) as con, con:
+        con.execute(
+            """
+            CREATE TABLE IF NOT EXISTS predicciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                fecha TEXT NOT NULL,
+                edad INTEGER,
+                ingresos INTEGER,
+                frecuencia_compra INTEGER,
+                cantidad_productos INTEGER,
+                tiempo_cliente INTEGER,
+                satisfaccion INTEGER,
+                probabilidad REAL NOT NULL,
+                riesgo TEXT NOT NULL,
+                resultado TEXT NOT NULL
+            )
+            """
+        )
+        columnas = {fila[1] for fila in con.execute("PRAGMA table_info(predicciones)")}
+        if "recomendacion" not in columnas:
+            con.execute("ALTER TABLE predicciones ADD COLUMN recomendacion TEXT")
+
+
+def guardar_evaluacion(nombre: str, datos: dict, probabilidad: float) -> None:
+    nivel = nivel_riesgo(probabilidad)
+    with closing(_conexion()) as con, con:
+        con.execute(
+            """
+            INSERT INTO predicciones
+            (nombre, fecha, edad, ingresos, frecuencia_compra, cantidad_productos,
+             tiempo_cliente, satisfaccion, probabilidad, riesgo, resultado, recomendacion)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                nombre,
+                datetime.now().strftime("%Y-%m-%d %H:%M"),
+                int(datos["edad"]),
+                int(datos["ingresos"]),
+                int(datos["frecuencia_compra"]),
+                int(datos["cantidad_productos"]),
+                int(datos["tiempo_cliente"]),
+                int(datos["satisfaccion"]),
+                float(probabilidad),
+                nivel,
+                f"Atención {nivel.lower()}",
+                RECOMENDACION[nivel],
+            ),
+        )
+
+
+def leer_historial(limite: int | None = None) -> pd.DataFrame:
+    consulta = "SELECT * FROM predicciones ORDER BY id DESC"
+    if limite:
+        consulta += f" LIMIT {int(limite)}"
+    with closing(_conexion()) as con:
+        df = pd.read_sql_query(consulta, con)
+    if "recomendacion" in df:
+        df["recomendacion"] = df["recomendacion"].where(df["recomendacion"].notna(), df["riesgo"].map(RECOMENDACION))
+    return df
+
+
+def borrar_historial() -> None:
+    with closing(_conexion()) as con, con:
+        con.execute("DELETE FROM predicciones")

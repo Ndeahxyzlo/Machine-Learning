@@ -1,0 +1,226 @@
+{
+  "modelo_seleccionado": "Regresión Logística balanceada",
+  "criterio": "Entre los modelos cuyo accuracy en prueba queda a menos de 3 puntos del mejor, se elige el de mayor F1 de la clase Abandona, porque equilibra detectar abandonos (recall) y evitar alertas innecesarias (precisión).",
+  "tolerancia_accuracy": 0.03,
+  "modelo_mayor_accuracy": "Regresión Logística",
+  "candidatos": [
+    "Regresión Logística",
+    "Regresión Logística balanceada",
+    "Random Forest",
+    "K-Nearest Neighbors"
+  ],
+  "n_total": 500,
+  "n_train": 400,
+  "n_test": 100,
+  "features": [
+    "edad",
+    "ingresos",
+    "frecuencia_compra",
+    "cantidad_productos",
+    "tiempo_cliente",
+    "satisfaccion"
+  ],
+  "tasa_abandono": 0.352,
+  "resultados": {
+    "Regresión Logística": {
+      "accuracy": 0.75,
+      "precision": 0.7272727272727273,
+      "recall": 0.45714285714285713,
+      "f1": 0.5614035087719298,
+      "roc_auc": 0.7503296703296704,
+      "cv_accuracy_media": 0.7825,
+      "cv_accuracy_std": 0.039210967853395284,
+      "cv_recall_media": 0.6320197044334975,
+      "cv_recall_std": 0.07476251966638081,
+      "matriz_confusion": [
+        [
+          59,
+          6
+        ],
+        [
+          19,
+          16
+        ]
+      ],
+      "reporte": {
+        "Permanece": {
+          "precision": 0.7564102564102564,
+          "recall": 0.9076923076923077,
+          "f1-score": 0.8251748251748252,
+          "support": 65.0
+        },
+        "Abandona": {
+          "precision": 0.7272727272727273,
+          "recall": 0.45714285714285713,
+          "f1-score": 0.5614035087719298,
+          "support": 35.0
+        },
+        "accuracy": 0.75,
+        "macro avg": {
+          "precision": 0.7418414918414918,
+          "recall": 0.6824175824175824,
+          "f1-score": 0.6932891669733775,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.7462121212121212,
+          "recall": 0.75,
+          "f1-score": 0.7328548644338119,
+          "support": 100.0
+        }
+      }
+    },
+    "Regresión Logística balanceada": {
+      "accuracy": 0.73,
+      "precision": 0.6111111111111112,
+      "recall": 0.6285714285714286,
+      "f1": 0.6197183098591549,
+      "roc_auc": 0.7538461538461538,
+      "cv_accuracy_media": 0.8025,
+      "cv_accuracy_std": 0.04703721930556693,
+      "cv_recall_media": 0.7948275862068965,
+      "cv_recall_std": 0.049608381660524274,
+      "matriz_confusion": [
+        [
+          51,
+          14
+        ],
+        [
+          13,
+          22
+        ]
+      ],
+      "reporte": {
+        "Permanece": {
+          "precision": 0.796875,
+          "recall": 0.7846153846153846,
+          "f1-score": 0.7906976744186046,
+          "support": 65.0
+        },
+        "Abandona": {
+          "precision": 0.6111111111111112,
+          "recall": 0.6285714285714286,
+          "f1-score": 0.6197183098591549,
+          "support": 35.0
+        },
+        "accuracy": 0.73,
+        "macro avg": {
+          "precision": 0.7039930555555556,
+          "recall": 0.7065934065934065,
+          "f1-score": 0.7052079921388797,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.7318576388888889,
+          "recall": 0.73,
+          "f1-score": 0.7308548968227971,
+          "support": 100.0
+        }
+      }
+    },
+    "Random Forest": {
+      "accuracy": 0.73,
+      "precision": 0.6818181818181818,
+      "recall": 0.42857142857142855,
+      "f1": 0.5263157894736842,
+      "roc_auc": 0.7068131868131868,
+      "cv_accuracy_media": 0.7675,
+      "cv_accuracy_std": 0.030207614933986427,
+      "cv_recall_media": 0.5970443349753694,
+      "cv_recall_std": 0.11617785623936967,
+      "matriz_confusion": [
+        [
+          58,
+          7
+        ],
+        [
+          20,
+          15
+        ]
+      ],
+      "reporte": {
+        "Permanece": {
+          "precision": 0.7435897435897436,
+          "recall": 0.8923076923076924,
+          "f1-score": 0.8111888111888111,
+          "support": 65.0
+        },
+        "Abandona": {
+          "precision": 0.6818181818181818,
+          "recall": 0.42857142857142855,
+          "f1-score": 0.5263157894736842,
+          "support": 35.0
+        },
+        "accuracy": 0.73,
+        "macro avg": {
+          "precision": 0.7127039627039626,
+          "recall": 0.6604395604395604,
+          "f1-score": 0.6687523003312477,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.721969696969697,
+          "recall": 0.73,
+          "f1-score": 0.7114832535885168,
+          "support": 100.0
+        }
+      }
+    },
+    "K-Nearest Neighbors": {
+      "accuracy": 0.74,
+      "precision": 0.68,
+      "recall": 0.4857142857142857,
+      "f1": 0.5666666666666667,
+      "roc_auc": 0.6938461538461538,
+      "cv_accuracy_media": 0.7525000000000001,
+      "cv_accuracy_std": 0.031024184114977135,
+      "cv_recall_media": 0.638423645320197,
+      "cv_recall_std": 0.07543784527410366,
+      "matriz_confusion": [
+        [
+          57,
+          8
+        ],
+        [
+          18,
+          17
+        ]
+      ],
+      "reporte": {
+        "Permanece": {
+          "precision": 0.76,
+          "recall": 0.8769230769230769,
+          "f1-score": 0.8142857142857143,
+          "support": 65.0
+        },
+        "Abandona": {
+          "precision": 0.68,
+          "recall": 0.4857142857142857,
+          "f1-score": 0.5666666666666667,
+          "support": 35.0
+        },
+        "accuracy": 0.74,
+        "macro avg": {
+          "precision": 0.72,
+          "recall": 0.6813186813186813,
+          "f1-score": 0.6904761904761905,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.732,
+          "recall": 0.74,
+          "f1-score": 0.7276190476190476,
+          "support": 100.0
+        }
+      }
+    }
+  },
+  "importancias": {
+    "satisfaccion": 0.122,
+    "frecuencia_compra": 0.0303,
+    "ingresos": 0.0293,
+    "tiempo_cliente": 0.029,
+    "cantidad_productos": 0.023,
+    "edad": 0.0157
+  }
+}

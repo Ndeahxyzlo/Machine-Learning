@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" width="280" height="56" role="img" aria-label="Genesis, análisis preventivo de clientes">
+  <rect width="48" height="48" y="4" fill="#0B3C49"/>
+  <polyline points="9,40 19,31 27,35 38,18" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="miter" stroke-linecap="square"/>
+  <rect x="33" y="13" width="10" height="10" fill="#6FBF9B"/>
+  <text x="62" y="31" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#0B3C49" letter-spacing="-0.3">Genesis</text>
+  <text x="62" y="47" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" font-size="10.5" fill="#5B6572" letter-spacing="0.4">Análisis preventivo de clientes</text>
+</svg>
